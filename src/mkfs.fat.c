@@ -647,6 +647,8 @@ static void setup_tables(void)
 	if (size_fat == 32 && reserved_sectors < 2)
 	    die("On FAT32 at least 2 reserved sectors are needed.");
     }
+
+    reserved_sectors = align_object(reserved_sectors, bs.cluster_size);
     bs.reserved = htole16(reserved_sectors);
     if (verbose >= 2)
 	printf("Using %d reserved sectors\n", reserved_sectors);
@@ -691,7 +693,8 @@ static void setup_tables(void)
 	    maxclustsize = 128;
 
 	do {
-	    fatdata32 = num_sectors - reserved_sectors;
+	    fatdata32 = num_sectors
+		- align_object(reserved_sectors, bs.cluster_size);
 	    fatdata1216 = fatdata32
 		- align_object(root_dir_sectors, bs.cluster_size);
 
